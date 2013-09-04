@@ -349,22 +349,15 @@ class UnitTestSuite extends JUnitSuite {
     
     @Test def testMap {
         val numbers = Observable.from(1, 2, 3, 4, 5, 6, 7, 8, 9)
-        val mappedNumbers = ArrayBuffer.empty[Int]
         val mapped: Observable[Int] = numbers map ((x: Int) => x * x)
-        mapped.subscribe((squareVal: Int) => {
-            mappedNumbers.append(squareVal)
-        })
-        assertEquals(List(1, 4, 9, 16, 25, 36, 49, 64, 81), mappedNumbers.toList)
+        assertEquals(List(1, 4, 9, 16, 25, 36, 49, 64, 81), mapped.toList.toBlockingObservable.single.asScala)
     }
     
     @Test def testMapMany {
         val numbers = Observable.from(1, 2, 3, 4)
         val f = (i: Int) => Observable.from(List(i, -i).asJava)
-        val mappedNumbers = ArrayBuffer.empty[Int]
-        numbers.mapMany(f).subscribe((i: Int) => {
-            mappedNumbers.append(i)
-        })
-        assertEquals(List(1, -1, 2, -2, 3, -3, 4, -4), mappedNumbers.toList)
+        val mapped = numbers.mapMany(f).toList.toBlockingObservable.single.asScala
+        assertEquals(List(1, -1, 2, -2, 3, -3, 4, -4), mapped)
     }
     
     @Test def testMaterialize {
